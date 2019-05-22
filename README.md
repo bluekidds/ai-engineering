@@ -1,4 +1,4 @@
-# Artificial Intelligence Engineering
+# A Data Science and Machine Learning Container System POC
 
 This repository contains a Proof of Concept on how to integrate Jupyter Notebooks
 with MLflow, for AI models versioning and serving, and SFTP & Minio for artefacts
@@ -261,7 +261,13 @@ Do not waste your time googling a solution, trust me. The easiest / quickest thi
 to do is generate your keys on a Linux machine / Docker container. The key files
 under the `keys` directory have been created on a Docker container.
 
-## WIP
+## Simple Guide through Docker Compose
 
-This is working in progress and more about MLflow features, like service models,
-will be added soon.
+> Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration. 
+
+### Installing Docker Compose
+
+- Mac - [Get Docker Desktop for Mac](https://docs.docker.com/docker-for-mac/install/)
+- Others: please reference [here](https://docs.docker.com/compose/install/)
+
+### 
