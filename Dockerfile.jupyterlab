@@ -8,7 +8,7 @@ RUN mkdir ~/.ssh
 
 # Install TensorFlow
 RUN conda install -c conda-forge tensorflow -y && \
-    conda install -c conda-forge numpy keras nltk gensim opencv -y
+    conda install -c conda-forge scikit-learn pandas numpy keras nltk gensim matplotlib opencv -y
 
 # Install Keras Contrib
 RUN pip install npm jupyterlab mlflow pysftp git+https://www.github.com/keras-team/keras-contrib.git
