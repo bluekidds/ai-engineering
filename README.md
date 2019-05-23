@@ -1,7 +1,7 @@
 # A Data Science and Machine Learning Container System POC
 
 This repository contains a Proof of Concept on how to integrate Jupyter Notebooks
-with MLflow, for AI models versioning and serving, and SFTP & Minio for artefacts
+with MLflow, for AI models versioning and serving, and SFTP & [Minio](https://min.io/)(object management) for artefacts
 storage.
 
 The PoC has been implemented in a way to mimic MLflow running as a remote tracking
@@ -12,44 +12,72 @@ the MLflow tracking server, Jupyter Lab has also runs within a Docker container.
 All the three containers run with the assistance of Docker Compose, which also
 configures a custom network which is shared amongst the containers.
 
-## Dependencies
+## Jupyter notebook container
+
+In this container, we have these environment: "tensorflow, scikit-learn, numpy, keras, nltk ,gensim, opencv"
+
+```bash 
+    RUN conda install -c conda-forge tensorflow -y && \
+    conda install -c conda-forge scikit-learn pandas numpy keras nltk gensim opencv -y 
+    
+    RUN pip install npm jupyterlab mlflow pysftp git+https://www.github.com/keras-team/keras-contrib.git
+    RUN jupyter serverextension enable --py jupyterlab
+```
+
+- General ML packages : tensorflow, scikit-learn, keras, mlflow
+- Computational packages: numpy, pandas, jupyterlab
+- Visualization packages: matplotlib
+- Computer vision: opencv
+- Natural Language processing: gensim, nltk
+- Others: pysftp, npm
+
+In case of adding more packages, pull the request and be approved under reasons of robust and helpful by the data science owner, then add into requirements.txt instead.
+   
+   
+## Installation
 
 To get this PoC running on a MacBook Pro, one needs to install the following applications:
 
-* [Docker Engine](https://hub.docker.com/editions/community/docker-ce-desktop-mac)
+## Simple Guide through Docker Compose
 
-If you are not a fan of Docker and would like to have only JupyterLab and MLflow
-running locally, you will need the following:
+> Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration. 
 
-## Step-by-step Setup
+### Installing Docker Compose
 
-Although you are encouraged to read all the sections below in order to understand
-better the whole setup, let's save some time and have a more concise step-by-step setup.
+- Mac - [Get Docker Desktop for Mac](https://docs.docker.com/docker-for-mac/install/)
+- Others: please reference [here](https://docs.docker.com/compose/install/)
+
+## Step-by-step Setup and first experiment 
 
 1. Run the Docker containers:
 - ```docker-compose up```
 - The first run will take some time because it will have to pull some images and build other.
-2. Once the containers are running, open another `terminal` tab and make the```copy_known_hosts.sh```
-  and the ```create_experiments.sh``` executables:
-- ```chmod +x copy_known_hosts.sh```
-- ```chmod +x create_experiments.sh```
-3. Now copy the `known_hosts` to the JupytLab container:
-- ```./copy_known_hosts.sh```
-4. Create the experiments in the MLflow container:
-- ```./create_experiments.sh```
-5. Create a bucket on Minio:
+2. Once the containers are running, open another `terminal` tab and type:
+
+```
+> cd scripts 
+> chmod +x copy_known_hosts.sh
+> chmod +x create_experiments.sh
+> ./copy_known_hosts.sh
+> ./create_experiments.sh
+```
+to allow files permission and container setup(managed by bash script).
+
+3. Create a bucket on Minio:
 - Go the the Minio UI on `http://localhost:9000`
-- Click on the + sign on the bottom-right corner
+- Click on the + sign on the bottom-right corner using the credentials resides in "*docker-compose.yml*"
 - Create a bucket called `ai-models`
 6. Open JupyterLab:
 - Got to your browser and type `http://localhost:8991/lab`
-- Open the `conv-net-in-keras.ipynb` notebook and run all the cells
+- Open the `conv-net-in-keras.ipynb` notebook in the notebook directory and run all the cells
 - Go to MLflow UI on `http://localhost:5500` and check the experiments
 - Go to Minio UI and check the content of the bucket
 
-**If you want to understand why those steps were made, please keep reading.**
+----
 
-## Containers
+## Project structures:
+
+### Containers
 
 The three containers used are named as:
 
@@ -190,57 +218,18 @@ goes under `~/.ssh/known_hosts` inside the containers.
 Adding that extra information in the MLflow container is pretty easy. It comes with
 OpenSHH installed, so just running the command below does the trick:
 
-* ```ssh-keyscan -H ekholabs-sftp >> ~/.ssh/known_hosts```
 
-**Please, do not execute the line above**, this command is already part of the `docker-compose.yml`,
-which means that the host will be added to the `known_hosts` file of the MLflow container
-automatically at start-up.
 
-However, when it comes to the JupyterLab container, we do have an issue: it does not
-contain the OpenSHH packaged and we are not allowed to install it. Hence, `ssh-keyscan`
-won't work.
+## Creating Bucket in Minio
 
-What's the problem with that? Well, when the notebook tries to log the artefact on the
-tracking server (MLflow), `pysftp/Paramiko` will complain and throw and exception saying:
-*No hosts for key!*
+To create a bucket, just go to Minio (http://localhost:9000) 
 
-So, it can only mean one thing: we have to get the `known_hosts` from the `ekholabs-mlflow`
-container into the `ekholabs-jupyterlab` container. But how? Well, with **Docker**! I mean,
-with a shell script that will run some commands in the Docker containers.
-
-Take a peak inside the ```copy_known_hosts.sh``` shell script to understand what it's doing.
-Once you done, please execute that script from the root directory of the project.
-
-* Run --> ```./scripts/copy_known_hosts.sh```
-
-Now you are - almost - good to go!
-
-**P.S.**: are you better than me at Docker sheiße? Please, contribute to this repo
-and get rid of so many steps. :)
-
-## We need a Bucket
-
-*Well, completely unrelated, but I have a friend called Leonardo Bucket. Every time
-I do something with S3 and have to say or write the word `bucket`, it reminds me of him. :D*
-
-So, if we want to use Minio as storage, we do need a bucket. And, more over, the bucket
-has to be created before we try to store artefacts.
-
-If you have looked inside the ```create_experiments.sh```, you might have noticed that
-we expect a bucket called ```ai-models```, not *Leonardo*, there.
-
-To create a bucket, just go to Minio (http://localhost:9000) and the rest you should know.
-
-Ah!, do you need a *key id* and *secret* combination to login? Have a ```docker-compose.yml```
-file, the Minio key id / secret pair is informed there.
-
-Done with the bucket? If so, now you are good to go. ;)
 
 ## Logging Metrics and Artefacts
 
 There is not much to say here. To actually see how it's done, go to your JupyterLab
 frontend and open the `conv-net-in-keras.ipynb` notebook. The last cell contains all
-the magic you need.
+the magic you need. I strongly recommend to isolate these magic snippets into a sharable structure such as python utilities files.
 
 ## SSH Keys
 
@@ -261,13 +250,3 @@ Do not waste your time googling a solution, trust me. The easiest / quickest thi
 to do is generate your keys on a Linux machine / Docker container. The key files
 under the `keys` directory have been created on a Docker container.
 
-## Simple Guide through Docker Compose
-
-> Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration. 
-
-### Installing Docker Compose
-
-- Mac - [Get Docker Desktop for Mac](https://docs.docker.com/docker-for-mac/install/)
-- Others: please reference [here](https://docs.docker.com/compose/install/)
-
-### 
