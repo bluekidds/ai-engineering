@@ -36,16 +36,20 @@ In case of adding more packages, pull the request and be approved under reasons 
    
 ## Installation
 
-To get this PoC running on a MacBook Pro, one needs to install the following applications:
+First we need to install Docker on our machine, Docker is a container designed to make it easier to create, deploy, and run applications. 
 
-## Simple Guide through Docker Compose
+### Installing Docker
+
+- Mac - [Get Docker Desktop for Mac](https://docs.docker.com/docker-for-mac/install/)
+- Windows - [Get Docker Desktop for Windows](https://docs.docker.com/docker-for-windows/install/)
+- Others: please reference [here](https://docs.docker.com/compose/install/)
+
+
+
+## Setting up multiple microservices of containers through Docker Compose
 
 > Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration. 
 
-### Installing Docker Compose
-
-- Mac - [Get Docker Desktop for Mac](https://docs.docker.com/docker-for-mac/install/)
-- Others: please reference [here](https://docs.docker.com/compose/install/)
 
 ## Step-by-step Setup and first experiment 
 
